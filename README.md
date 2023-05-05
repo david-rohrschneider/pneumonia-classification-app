@@ -1,2 +1,2 @@
-# image-segmentation-app
-An app for uploading images which get feeded through a neural network and returns the segmented image.
+# pneumonia-classification-app
+Upload images to detect whether pneumonia is present or not.
