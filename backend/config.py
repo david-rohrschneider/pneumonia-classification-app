@@ -9,3 +9,5 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+cors_origins = ["http://localhost:3000"]
