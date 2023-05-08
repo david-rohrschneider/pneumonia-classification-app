@@ -10,7 +10,13 @@ Developed using **Python 3.10.10**.
     ```shell
     pip install requirements.txt
     ```
-2. Run the server locally using uvicorn:
+2. Set the cors origin to your frontend url inside [config.py](config.py):
+   ```python
+   # ...
+   cors_origins = ["http://localhost:3000"]
+   # ...
+   ```
+3. Run the server locally using uvicorn. Pass your port to the command:
     ```shell
     uvicorn main:app --port 8000
     ```
