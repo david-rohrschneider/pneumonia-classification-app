@@ -5,6 +5,8 @@ import torch.nn.functional as F
 import torchvision.transforms as transforms
 from PIL import Image
 
+from config import settings
+
 
 class Classifier:
     __WEIGHTS_DIR = os.path.abspath(os.path.join("classifier", "weights"))
@@ -25,6 +27,11 @@ class Classifier:
 
     def __load_image(self, image_bytes):
         image = Image.open(image_bytes).convert("RGB")
+
+        # Raise an error because the transforms cannot crop to a higher resolution
+        if image.width < 64 or image.height < 64:
+            raise ValueError(f"The image must have a minimum width/height of {settings.min_img_size}px!")
+
         image = self.__transforms(image)
         image = image.unsqueeze(0)
         return image

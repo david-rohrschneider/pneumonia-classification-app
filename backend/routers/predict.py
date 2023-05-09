@@ -1,5 +1,5 @@
 from io import BytesIO
-from fastapi import APIRouter, File
+from fastapi import APIRouter, File, UploadFile, HTTPException
 from classifier.classifier import Classifier
 from config import settings
 
@@ -13,14 +13,19 @@ classifier = Classifier(
 
 
 @router.post("/")
-async def predict_image(image: bytes = File(...)):
-    try:
-        img_bytes = BytesIO(image)
-        prediction, confidence = classifier.classify_image(img_bytes)
+async def predict_image(image: UploadFile = File(...)):
 
-        return {
-            "prediction": prediction,
-            "confidence": confidence,
-        }
-    except:
-        return {"Error": "Something went wrong!"}
+    if not image.content_type == "image/jpeg":
+        raise HTTPException(status_code=415, detail="The uploaded file must be a jpeg image!")
+
+    img_bytes = BytesIO(image.file.read())
+
+    try:
+        prediction, confidence = classifier.classify_image(img_bytes)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=exc.args[0])
+
+    return {
+        "prediction": prediction,
+        "confidence": confidence,
+    }
