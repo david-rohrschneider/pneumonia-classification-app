@@ -1,5 +1,10 @@
 import ImageDrop from './ImageDrop.tsx'
-import getPrediction, { PredictionResult } from '../services/get-prediction.ts'
+import getPrediction, {
+    ApiSuccessResponse,
+    ErrorResult,
+    isErrorResult,
+    type PredictionResult,
+} from '../services/get-prediction.ts'
 import { useEffect, useState } from 'react'
 import PredictionCard from './PredictionCard.tsx'
 import LoadingSpinner from './LoadingSpinner.tsx'
@@ -9,9 +14,9 @@ function BaseCard() {
     const [image, setImage] = useState<null | File>(null)
     const [previewSrc, setPreviewSrc] = useState<string>('')
     const [predictionResult, setPredictionResult] =
-        useState<null | PredictionResult>(null)
+        useState<null | ApiSuccessResponse>(null)
     const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState(false)
+    const [error, setError] = useState<null | ErrorResult>(null)
 
     useEffect(() => {
         if (!image) {
@@ -28,20 +33,20 @@ function BaseCard() {
     const predictButtonHandler = async () => {
         if (!image) return
         setIsLoading(true)
-        const prediction = await getPrediction(image)
+        const prediction: PredictionResult = await getPrediction(image)
 
-        if (!prediction) {
-            setError(true)
+        if (isErrorResult(prediction)) {
+            setError(prediction)
             setIsLoading(false)
             return
         }
+        setError(null)
         setPredictionResult(prediction)
         setIsLoading(false)
     }
 
     const chooseOtherImageHandler = () => {
         setImage(null)
-        setPreviewSrc('')
         setPredictionResult(null)
     }
 
@@ -93,7 +98,7 @@ function BaseCard() {
                                 </button>
                             </div>
                             {error ? (
-                                <ErrorCard />
+                                <ErrorCard {...error} />
                             ) : (
                                 predictionResult && (
                                     <PredictionCard {...predictionResult} />

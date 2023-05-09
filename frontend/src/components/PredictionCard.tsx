@@ -1,6 +1,6 @@
-import { type PredictionResult } from '../services/get-prediction.ts'
+import { type PredictionSuccessResult } from '../services/get-prediction.ts'
 
-function PredictionCard(predictionResult: PredictionResult) {
+function PredictionCard(predictionResult: PredictionSuccessResult) {
     return (
         <div
             className={'px-10 py-8 rounded-3xl bg-white bg-opacity-20 flex flex-col'}

@@ -1,9 +1,26 @@
-export interface PredictionResult {
+export interface ApiSuccessResponse {
     prediction: string
     confidence: number
 }
 
-const getPrediction = async (image: File): Promise<PredictionResult | null> => {
+interface ApiErrorResponse {
+    detail: string
+}
+
+export interface ErrorResult {
+    statusCode: number
+    errorMsg: string
+}
+
+export type PredictionResult = ApiSuccessResponse | ErrorResult
+
+export const isErrorResult = (
+    value: PredictionResult
+): value is ErrorResult => {
+    return Object.keys(value).includes('statusCode')
+}
+
+const getPrediction = async (image: File): Promise<PredictionResult> => {
     const formData = new FormData()
     formData.append('image', image)
 
@@ -18,13 +35,21 @@ const getPrediction = async (image: File): Promise<PredictionResult | null> => {
             requestOptions
         )
 
-        if (response.ok && response.body) {
+        if (response.status < 400 && response.ok) {
             return await response.json()
         }
 
-        return null
+        const errorBody: ApiErrorResponse = await response.json()
+
+        return {
+            statusCode: response.status,
+            errorMsg: errorBody.detail,
+        }
     } catch {
-        return null
+        return {
+            statusCode: 503,
+            errorMsg: 'The server is unreachable!',
+        }
     }
 }
 
